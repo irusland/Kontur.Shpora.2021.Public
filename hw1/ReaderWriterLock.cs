@@ -25,25 +25,6 @@ namespace hw1
             g = new object();
         }
 
-        private void wait(int timeout)
-        {
-            Monitor.Exit(g);
-            var stopwatch = Stopwatch.StartNew();
-            while (!cond) { 
-                if (stopwatch.ElapsedMilliseconds > timeout)
-                    throw new ApplicationException("timeout");
-            }
-
-            cond = false;
-        }
-
-        private void notify()
-        {
-            Monitor.PulseAll(g);
-
-            cond = true;
-        }
-
         public void AcquireReaderLock(int timeOutMilliseconds)
         {
             Monitor.Enter(g);
@@ -51,8 +32,7 @@ namespace hw1
             {
                 while (num_writers_waiting > 0 || writer_active)
                 {
-                    // wait(timeOutMilliseconds);
-                    Monitor.Wait(g);
+                    Monitor.Wait(g, timeOutMilliseconds);
                 }
 
                 num_readers_active++;
@@ -71,7 +51,6 @@ namespace hw1
                 num_readers_active--;
                 if (num_readers_active == 0)
                 {
-                    // notify();
                     Monitor.PulseAll(g);
                 }
 
@@ -90,8 +69,7 @@ namespace hw1
                 num_writers_waiting++;
                 while (num_readers_active > 0 || writer_active)
                 {
-                    // wait(timeoutMilliseconds);
-                    Monitor.Wait(g);
+                    Monitor.Wait(g, timeoutMilliseconds);
                 }
                 num_writers_waiting--;
                 writer_active = true;
@@ -108,7 +86,6 @@ namespace hw1
             try
             {
                 writer_active = false;
-                // notify();
                 Monitor.PulseAll(g);
             }
             finally

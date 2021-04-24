@@ -1,8 +1,10 @@
+using System;
 using System.Threading;
+using ReaderWriterLock;
 
 namespace hw1.Locks
 {
-    public class WriterReaderLock : IReaderWriterLock
+    public class WriterReaderLock : IReaderWriterLock, IRwLock
     {
         /// <summary>
         /// Using a condition variable and a mutex
@@ -86,6 +88,32 @@ namespace hw1.Locks
             finally
             {
                 Monitor.Exit(g);
+            }
+        }
+
+        public void ReadLocked(Action action)
+        {
+            AcquireReaderLock(0);
+            try
+            {
+                action();
+            }
+            finally
+            {
+                ReleaseReaderLock();
+            }
+        }
+
+        public void WriteLocked(Action action)
+        {
+            AcquireWriterLock(0);
+            try
+            {
+                action();
+            }
+            finally
+            {
+                ReleaseWriterLock();
             }
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using hw1.Locks;
 using NUnit.Framework;
 
 namespace ReaderWriterLock
@@ -9,7 +10,7 @@ namespace ReaderWriterLock
 	public class LockTests : RwLockTests<LockWrapper> {}
 	public class ReaderWriterLockSlimTests : RwLockTests<ReaderWriterLockWrapper> {}
 
-	public class MyRwLockTests : RwLockTests<RwLock> {}
+	public class MyRwLockTests : RwLockTests<WriterReaderLock> {}
 
 	[TestFixture]
 	public abstract class RwLockTests<T> where T : IRwLock, new()

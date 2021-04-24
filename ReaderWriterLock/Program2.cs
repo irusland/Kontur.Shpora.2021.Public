@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using hw1.Locks;
 
@@ -18,7 +18,7 @@ namespace hw1
         static int reads = 0;
         static int writes = 0;
 
-        public static void Main()
+        public static void Main2()
         {
             rwl = new Locks.WriterReaderLock();
             // rwl = new Locks.ReaderWriterLock();

@@ -40,13 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="example.cs" />
-    <Compile Include="Locks\ILock.cs" />
-    <Compile Include="Locks\IReaderLock.cs" />
-    <Compile Include="Locks\IReaderWriterLock.cs" />
-    <Compile Include="Locks\IWriterLock.cs" />
-    <Compile Include="Locks\ReaderWriterLock.cs" />
-    <Compile Include="Locks\WriterReaderLock.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,11 +1,13 @@
-﻿namespace hw1
+﻿using hw1.Locks;
+
+namespace hw1
 {
     using System;
     using System.Threading;
 
     public class Program
     {
-        static Locks.WriterReaderLock rwl = new Locks.WriterReaderLock();
+        static IReaderWriterLock rwl;
 
         static int resource = 0;
 
@@ -19,6 +21,9 @@
 
         public static void Main()
         {
+            rwl = new Locks.WriterReaderLock();
+            // rwl = new Locks.ReaderWriterLock();
+            
             var t = new Thread[numThreads];
             for (var i = 0; i < numThreads; i++)
             {

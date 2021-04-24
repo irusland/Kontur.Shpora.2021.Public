@@ -2,7 +2,7 @@ using System.Threading;
 
 namespace hw1.Locks
 {
-    public class WriterReaderLock : IReaderLock, IWriterLock
+    public class WriterReaderLock : IReaderWriterLock
     {
         /// <summary>
         /// Using a condition variable and a mutex

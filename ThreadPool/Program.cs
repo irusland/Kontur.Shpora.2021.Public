@@ -83,6 +83,69 @@ namespace ThreadPool
 		private const int Concurrency = 4;
 	}
 
+	internal class SimpleLockThreadPool : IThreadPool
+	{
+		EventWaitHandle _wh = new AutoResetEvent (false);
+		Thread[] _worker;
+		readonly object _locker = new object();
+		Queue<Action> _tasks = new Queue<Action>();
+		private bool isFinished = false;
+
+		public SimpleLockThreadPool(in int concurrency)
+		{
+			_worker = new Thread[concurrency];
+			for (int i = 0; i < concurrency; i++)
+			{
+				_worker[i] = new Thread(Work);
+				_worker[i].Start();
+
+			}
+		}
+ 
+		public void EnqueueAction(Action action)
+		{
+			lock (_locker) 
+				_tasks.Enqueue(action);
+			_wh.Set();
+		}
+ 
+		public void Dispose()
+		{
+			EnqueueAction(null);
+			for (int i = 0; i < _worker.Length; i++)
+			{
+				_worker[i].Join();
+			}
+			_wh.Close();
+		}
+		
+		void Work()
+		{
+			while (true)
+			{
+				Action task = null;
+				lock (_locker)
+					if (_tasks.Count > 0)
+					{
+						task = _tasks.Dequeue();
+						if (isFinished || task == null)
+						{
+							isFinished = true;
+							EnqueueAction(null);
+							return;
+						}
+					}
+				if (task != null)
+				{
+					Console.WriteLine ("Performing task: " + task);
+					task.Invoke();
+				}
+				else
+					_wh.WaitOne();         // No more tasks - wait for a signal
+			}
+		}
+	}
+
 	public static class Extension
 	{
 		public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)

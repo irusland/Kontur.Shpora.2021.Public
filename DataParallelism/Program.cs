@@ -15,7 +15,7 @@ namespace DataParallelism
 	{
 		static void Main()
 		{
-			PlinqDemo();
+			// PlinqDemo();
 			//CompareDifferentApproaches();
 
 			//PrimesAndPartitioner();
@@ -27,7 +27,7 @@ namespace DataParallelism
 			//ParallelForeachDemo();
 			//ParallelForEachWithLocalInitAndLocalFinallyDemo();
 
-			//ParallelForImageDemo();
+			ParallelForImageDemo();
 			//ParallelForStateDemo();
 
 			//PartitionerBitmap.BitmapDemo();
@@ -210,22 +210,27 @@ namespace DataParallelism
 
 		public static void ParallelForImageDemo()
 		{
-			using var image = (Bitmap)Image.FromFile("large.png");
-			using var bmp = new DirectBitmap(image);
-
+			// using var image = (Bitmap)Image.FromFile("large.png");
+			
+			using var bmp = new Bitmap(1024,1024);
 			var sw = Stopwatch.StartNew();
 
 			//for(int y = 0; y < bmp.Height; y++)
-			Parallel.For(0, bmp.Height, y =>
+			Enumerable.Range(0, 1024*1024).AsParallel()
+				.ForAll(i =>
 			{
-				for(int x = 0; x < bmp.Width; x++)
-					bmp.FastSetPixel(x, y, bmp.FastGetPixel(x, y).GrayScale());
+				var id = (byte) Thread.CurrentThread.ManagedThreadId;
+				id *= 10;
+				// Console.WriteLine(id);
+				var color = Color.FromArgb(id*2, 256-id,125-id );
+				bmp.SetPixel(i / 1024,i % 1024, color);
 			});
+			bmp.Save("pic.bmp");
 
 			sw.Stop();
 
 			Console.WriteLine(sw.Elapsed);
-			image.Save("large-gray.png", ImageFormat.Png);
+			// image.Save("large-gray.png", ImageFormat.Png);
 		}
 
 		private static void ParallelForStateDemo()

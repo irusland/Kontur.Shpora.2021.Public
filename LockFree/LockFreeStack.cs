@@ -9,12 +9,32 @@ namespace LockFree
 
         public void Push(T obj)
         {
-           throw new NotImplementedException();
+            Node<T> oldHead;
+            var newHead = new Node<T> {
+                Value = obj
+            };
+            do
+            {
+                oldHead = head;
+                newHead.Next = oldHead;
+            } while (Interlocked.CompareExchange(ref head, newHead, oldHead) != oldHead);
+            
         }
 
         public T Pop()
         {
-            throw new NotImplementedException();
+            T value;
+
+            Node<T> oldHead;
+            do
+            {
+                value = head.Value;
+                oldHead = head;
+                head = head.Next;
+            } while (Interlocked.CompareExchange(ref head, head, oldHead) != oldHead);
+                
+
+            return value;
         }
     }
 }

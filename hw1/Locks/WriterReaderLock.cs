@@ -1,26 +1,22 @@
-using System;
-using System.Diagnostics;
 using System.Threading;
 
-namespace hw1
+namespace hw1.Locks
 {
-    public class ReaderWriterLock : IReaderLock, IWriterLock
+    public class WriterReaderLock : IReaderLock, IWriterLock
     {
         /// <summary>
         /// Using a condition variable and a mutex
-        /// write-preferring RW
+        /// write-preferring
         /// </summary>
         
         private object g;
-
-        private bool cond;
         
-        private int num_readers_active;
+        private int activeReaders;
 
-        private int num_writers_waiting;
-        private bool writer_active;
+        private int waitingWriters;
+        private bool isWriterActive;
 
-        public ReaderWriterLock()
+        public WriterReaderLock()
         {
             g = new object();
         }
@@ -30,12 +26,12 @@ namespace hw1
             Monitor.Enter(g);
             try
             {
-                while (num_writers_waiting > 0 || writer_active)
+                while (waitingWriters > 0 || isWriterActive)
                 {
                     Monitor.Wait(g, timeOutMilliseconds);
                 }
 
-                num_readers_active++;
+                activeReaders++;
             }
             finally
             {
@@ -48,12 +44,11 @@ namespace hw1
             Monitor.Enter(g);
             try
             {
-                num_readers_active--;
-                if (num_readers_active == 0)
+                activeReaders--;
+                if (activeReaders == 0)
                 {
                     Monitor.PulseAll(g);
                 }
-
             }
             finally
             {
@@ -66,13 +61,13 @@ namespace hw1
             Monitor.Enter(g);
             try
             {
-                num_writers_waiting++;
-                while (num_readers_active > 0 || writer_active)
+                waitingWriters++;
+                while (activeReaders > 0 || isWriterActive)
                 {
                     Monitor.Wait(g, timeoutMilliseconds);
                 }
-                num_writers_waiting--;
-                writer_active = true;
+                waitingWriters--;
+                isWriterActive = true;
             }
             finally
             {
@@ -85,7 +80,7 @@ namespace hw1
             Monitor.Enter(g);
             try
             {
-                writer_active = false;
+                isWriterActive = false;
                 Monitor.PulseAll(g);
             }
             finally

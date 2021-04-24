@@ -1,4 +1,4 @@
-namespace hw1
+namespace hw1.Locks
 {
     public interface IReaderLock : ILock
     {

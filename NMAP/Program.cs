@@ -3,8 +3,8 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using log4net;
-using log4net.Config;
+// using log4net;
+// using log4net.Config;
 
 namespace NMAP
 {
@@ -13,12 +13,13 @@ namespace NMAP
         static void Main(string[] args)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            XmlConfigurator.Configure(LogManager.GetRepository(Assembly.GetCallingAssembly()), new FileInfo("log4net.config"));
+            // XmlConfigurator.Configure(LogManager.GetRepository(Assembly.GetCallingAssembly()), new FileInfo("log4net.config"));
 
             var ipAddrs = GenIpAddrs();
             var ports = new[] {21, 25, 80, 443, 3389};
 
-            var scanner = new SequentialScanner();
+            // var scanner = new SequentialScanner();
+            var scanner = new AsyncScanner();
             scanner.Scan(ipAddrs, ports).Wait();
         }
 

@@ -6,7 +6,9 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading.Tasks;
+using NMAP;
 
 namespace HackChat
 {
@@ -15,13 +17,12 @@ namespace HackChat
 		public const int DefaultPort = 31337;
 
 		private readonly byte[] PingMsg = new byte[1];
-		private readonly ConcurrentDictionary<IPEndPoint, (TcpClient Client, NetworkStream Stream)> Connections = new();
+		private readonly ConcurrentDictionary<IPEndPoint, (TcpClient Client, NetworkStream Stream)> Connections = new ConcurrentDictionary<IPEndPoint, (TcpClient Client, NetworkStream Stream)>();
 
 		private readonly int port;
 		private readonly TcpListener tcpListener;
 
 		public Chat(int port) => tcpListener = new TcpListener(IPAddress.Any, this.port = port);
-
 		public void Start()
 		{
 			Task.Run(DiscoverLoop);
@@ -44,7 +45,19 @@ namespace HackChat
 
 		private async Task BroadcastAsync(string message)
 		{
-			throw new NotImplementedException();
+			foreach (var (ip, port) in discovered)
+			{
+				using (var tcpClient = new TcpClient())
+				{
+					tcpClient.Connect(ip, port);
+					var buffer = Encoding.UTF8.GetBytes(message);
+					using (var s = tcpClient.GetStream())
+					{
+						s.Write(buffer, 0, buffer.Length);
+						Console.WriteLine($"{message} {discovered.Count} {ip} {port}");
+					}
+				}
+			}
 		}
 
 		private async void DiscoverLoop()
@@ -56,9 +69,15 @@ namespace HackChat
 			}
 		}
 
+		private List<(IPAddress, int)> discovered;
 		private async Task Discover()
 		{
-			throw new NotImplementedException();
+			var ipAddrs = NMAP.Program.GenIpAddrs();
+			var ports = new[] {31337};
+			var port = 31337;
+			// var scanner = new SequentialScanner();
+			var scanner = new AsyncScanner();
+			discovered = await scanner.Scan(ipAddrs, ports);
 		}
 
 		private static async Task ProcessClientAsync(TcpClient tcpClient)

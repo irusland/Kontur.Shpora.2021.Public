@@ -2,8 +2,8 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
-using log4net;
-using log4net.Config;
+// using log4net;
+// using log4net.Config;
 
 namespace Cluster
 {
@@ -12,7 +12,7 @@ namespace Cluster
         public static void Main(string[] args)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            XmlConfigurator.Configure(LogManager.GetRepository(Assembly.GetCallingAssembly()), new FileInfo("log4net.config"));
+            // XmlConfigurator.Configure(LogManager.GetRepository(Assembly.GetCallingAssembly()), new FileInfo("log4net.config"));
 
             try
             {
@@ -32,6 +32,6 @@ namespace Cluster
             }
         }
 
-        private static readonly ILog log = LogManager.GetLogger(typeof(Program));
+        // private static readonly ILog log = LogManager.GetLogger(typeof(Program));
     }
 }

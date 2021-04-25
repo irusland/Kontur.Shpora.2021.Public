@@ -8,7 +8,7 @@ using System.Text;
 
 namespace NMAP
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -23,10 +23,10 @@ namespace NMAP
             scanner.Scan(ipAddrs, ports).Wait();
         }
 
-        private static IPAddress[] GenIpAddrs()
+        public static IPAddress[] GenIpAddrs()
         {
             var konturAddrs = new List<IPAddress>();
-            uint focusIpInt = 0x0ACB112E;
+            uint focusIpInt = 0x0071a8c0;
             for(int b = 0; b <= byte.MaxValue; b++)
                 konturAddrs.Add(new IPAddress((focusIpInt & 0x00FFFFFF) | (uint)b << 24));
             return konturAddrs.ToArray();

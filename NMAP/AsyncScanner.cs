@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -9,21 +10,36 @@ using System.Threading.Tasks;
 
 namespace NMAP
 {
-    public class AsyncScanner : IPScanner
+    public class AsyncScanner
     {
         // protected virtual ILog log => LogManager.GetLogger(typeof(SequentialScanner));
 
-        public virtual Task Scan(IPAddress[] ipAddrs, int[] ports)
+        public  async Task<List<(IPAddress, int)>> Scan(IPAddress[] ipAddrs, int[] ports)
         {
-            return Task.WhenAll(ipAddrs.Select(ipAddr =>  ProcessPair(ipAddr, ports)));
+            var l = new List<(IPAddress, int)>();
+            
+            foreach (var iEnumerable in ipAddrs.Select(ipAddr => ProcessPair(ipAddr, ports)))
+            {
+                await foreach (var valueTuple in iEnumerable)
+                {
+                    l.Add(valueTuple);
+                }
+            }
+
+            return l;
         }
 
-        private async Task ProcessPair(IPAddress ip, int[] ports)
+        private async IAsyncEnumerable<(IPAddress, int)> ProcessPair(IPAddress ip, int[] ports)
         {
-            var ping = await PingAddr(ip);
-            if (ping != IPStatus.Success)
-                return;
-            await Task.WhenAll(ports.Select(port => CheckPort(ip, port)));
+            // var ping = await PingAddr(ip);
+            // if (ping != IPStatus.Success)
+            //     yield break;
+            foreach (var port in ports)
+            {
+                var isAvailable = await CheckPort(ip, port);
+                if (isAvailable)
+                    yield return (ip, port);
+            }
         }
 
 
@@ -38,11 +54,11 @@ namespace NMAP
             }
         }
 
-        protected async Task CheckPort(IPAddress ipAddr, int port, int timeout = 3000)
+        protected async Task<bool> CheckPort(IPAddress ipAddr, int port, int timeout = 20)
         {
             using (var tcpClient = new TcpClient())
             {
-                Console.WriteLine($"Checking {ipAddr}:{port}");
+                // Console.WriteLine($"Checking {ipAddr}:{port}");
 
                 var connectTask = await tcpClient.ConnectWithTimeoutAsync(ipAddr, port, timeout);
                 // await connectTask;
@@ -51,7 +67,7 @@ namespace NMAP
                 {
                     case TaskStatus.RanToCompletion:
                         portStatus = PortStatus.OPEN;
-                        break;
+                        return true;
                     case TaskStatus.Faulted:
                         portStatus = PortStatus.CLOSED;
                         break;
@@ -60,7 +76,9 @@ namespace NMAP
                         break;
                 }
 
-                Console.WriteLine($"Checked {ipAddr}:{port} - {portStatus}");
+                // Console.WriteLine($"Checked {ipAddr}:{port} - {portStatus}");
+                return false;
+
             }
         }
     }

@@ -10,8 +10,8 @@ namespace EchoServer
     {
         static void Main(string[] args)
         {
-            ProcessTcpServer();
-            // AsyncProcessTcpServer();
+            // ProcessTcpServer();
+            AsyncProcessTcpServer();
         }
 
         private static void ProcessTcpServer()

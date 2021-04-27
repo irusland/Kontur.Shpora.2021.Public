@@ -28,7 +28,8 @@ namespace ClusterClient
                 {
                     // new RandomClusterClient(replicaAddresses),
                     // new AnyClusterClient(replicaAddresses),
-                    new RoundRobin(replicaAddresses), 
+                    // new RoundRobin(replicaAddresses), 
+                    new SmartClusterClient(replicaAddresses), 
                 };
 
                 var queries = new[]

@@ -22,7 +22,7 @@ namespace ClusterClient.Clients
                 Console.WriteLine($"Processing {webRequest.RequestUri}");
 
 
-                await Task.WhenAny(resultTask, Task.Delay(timeout));
+                await Task.WhenAny(resultTask, Task.Delay(GetSoftTimeout(timeout)));
                 if (resultTask.IsCompleted)
                     return resultTask.Result;
             }

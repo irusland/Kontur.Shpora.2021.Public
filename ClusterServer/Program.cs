@@ -2,8 +2,8 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
-// using log4net;
-// using log4net.Config;
+using log4net;
+using log4net.Config;
 
 namespace Cluster
 {
@@ -19,19 +19,19 @@ namespace Cluster
                 if(!ServerOptions.TryGetArguments(args, out var parsedArguments))
                     return;
 
-                var server = new ClusterServer(parsedArguments, log);
+                var server = new ClusterServer(parsedArguments);
                 server.Start();
 
-                log.InfoFormat("Press ENTER to stop listening");
+                Console.WriteLine("Press ENTER to stop listening");
                 Console.ReadLine();
-                log.InfoFormat("Server stopped!");
+                Console.WriteLine("Server stopped!");
             }
             catch(Exception e)
             {
-                log.Fatal(e);
+                Console.WriteLine(e);
             }
         }
 
-        // private static readonly ILog log = LogManager.GetLogger(typeof(Program));
+        // private static readonly ILog log = new ConsoleLog();
     }
 }

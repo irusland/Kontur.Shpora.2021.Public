@@ -12,10 +12,9 @@ namespace Cluster
 {
 	public class ClusterServer
     {
-        public ClusterServer(ServerOptions serverOptions, ILog log)
+        public ClusterServer(ServerOptions serverOptions)
         {
             this.ServerOptions = serverOptions;
-            this.log = log;
         }
 
         public void Start()
@@ -30,7 +29,7 @@ namespace Cluster
                     }
                 };
 
-                log.InfoFormat($"Server is starting listening prefixes: {string.Join(";", httpListener.Prefixes)}");
+                Console.WriteLine($"Server is starting listening prefixes: {string.Join(";", httpListener.Prefixes)}");
                 if(ServerOptions.Async)
                     httpListener.StartProcessingRequestsAsync(CreateAsyncCallback(ServerOptions.MethodDuration));
                 else
@@ -55,14 +54,14 @@ namespace Cluster
             {
                 var currentRequestId = Interlocked.Increment(ref RequestsCount);
                 var query = context.Request.QueryString["query"];
-                log.InfoFormat($"Thread #{Thread.CurrentThread.ManagedThreadId} received request '{query}' #{currentRequestId} at {DateTime.Now.TimeOfDay}");
+                Console.WriteLine($"Thread #{Thread.CurrentThread.ManagedThreadId} received request '{query}' #{currentRequestId} at {DateTime.Now.TimeOfDay}");
 
                 Thread.Sleep(methodDuration);
 
                 var encryptedBytes = ClusterHelpers.GetBase64HashBytes(query);
                 context.Response.OutputStream.Write(encryptedBytes, 0, encryptedBytes.Length);
 
-                log.InfoFormat($"Thread #{query} sent response for '{Thread.CurrentThread.ManagedThreadId}' for #{currentRequestId} at {DateTime.Now.TimeOfDay}");
+                Console.WriteLine($"Thread #{query} sent response for '{Thread.CurrentThread.ManagedThreadId}' for #{currentRequestId} at {DateTime.Now.TimeOfDay}");
             };
         }
 
@@ -72,7 +71,7 @@ namespace Cluster
             {
                 var currentRequestNum = Interlocked.Increment(ref RequestsCount);
                 var query = context.Request.QueryString["query"];
-                log.InfoFormat($"Thread #{Thread.CurrentThread.ManagedThreadId} received request '{query}' #{currentRequestNum} at {DateTime.Now.TimeOfDay}");
+                Console.WriteLine($"Thread #{Thread.CurrentThread.ManagedThreadId} received request '{query}' #{currentRequestNum} at {DateTime.Now.TimeOfDay}");
 
                 await Task.Delay(methodDuration);
                 // Thread.Sleep(methodDuration);
@@ -80,7 +79,7 @@ namespace Cluster
                 var encryptedBytes = ClusterHelpers.GetBase64HashBytes(query);
                 await context.Response.OutputStream.WriteAsync(encryptedBytes, 0, encryptedBytes.Length);
 
-                log.InfoFormat($"Thread #{Thread.CurrentThread.ManagedThreadId} sent response for '{query}' #{currentRequestNum} at {DateTime.Now.TimeOfDay}");
+                Console.WriteLine($"Thread #{Thread.CurrentThread.ManagedThreadId} sent response for '{query}' #{currentRequestNum} at {DateTime.Now.TimeOfDay}");
             };
         }
 
@@ -90,8 +89,7 @@ namespace Cluster
 
         private const int Running = 1;
         private const int NotRunning = 0;
-
-        private readonly ILog log;
+        
         private HttpListener httpListener;
     }
 }

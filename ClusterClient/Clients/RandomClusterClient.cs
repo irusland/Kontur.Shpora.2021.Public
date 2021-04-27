@@ -19,7 +19,7 @@ namespace ClusterClient.Clients
 
             var webRequest = CreateRequest(uri + "?query=" + query);
             
-            Log.InfoFormat($"Processing {webRequest.RequestUri}");
+            Console.WriteLine($"Processing {webRequest.RequestUri}");
 
             var resultTask = ProcessRequestAsync(webRequest);
 

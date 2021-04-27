@@ -34,9 +34,14 @@ namespace ClusterClient.Clients
                 if (resultTask.IsCompleted)
                     return resultTask.Result;
             }
-            
-            throw new TimeoutException();
 
+            // wait extra 
+            Console.WriteLine($"Waiting extra than timeout {timeout.ToString()}"); 
+            var answered = await Task.WhenAny(Tasks);
+            if (answered.IsCompleted)
+                return answered.Result;
+            // or do not wait excess 
+            throw new TimeoutException();
         }
 
         private bool TryCheckIfPreviousCompleted(out Task<string> completedTask)

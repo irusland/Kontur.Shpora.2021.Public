@@ -26,8 +26,9 @@ namespace ClusterClient
             {
                 var clients = new ClusterClientBase[]
                 {
-                    new RandomClusterClient(replicaAddresses),
-                    new AnyClusterClient(replicaAddresses),
+                    // new RandomClusterClient(replicaAddresses),
+                    // new AnyClusterClient(replicaAddresses),
+                    new RoundRobin(replicaAddresses), 
                 };
 
                 var queries = new[]
